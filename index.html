@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Fang 1.0.0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Fang 1.0.0</h1>
+    <div class="content">
+        <div class="section">
+            <div class="section-header">
+                <h2>Available Scripts</h2>
+                <button id="addScriptBtn" class="secondary-btn">+ Add script</button>
+            </div>
+            <div id="scriptsContainer" class="scripts-container"></div>
+            <div id="scriptsEmpty" class="empty-message">No scripts found. Add one or set the script folder in Settings.
+            </div>
+        </div>
+        <div class="output-section">
+            <h3>Output:</h3>
+            <div class="output-box" id="output">Scripts output will appear here...</div>
+            <button id="clearBtn" class="clear-btn">Clear Output</button>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-left">
+            <span id="statusText">Status: Idle</span>
+            <span id="scriptText">Current script: none</span>
+        </div>
+        <div class="footer-right">
+            <button id="settingsBtn" class="footer-btn">⚙️ Settings</button>
+            <span id="clockText"></span>
+        </div>
+    </footer>
+
+    <div id="settingsModal" class="modal-hidden">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button id="closeSettingsBtn" class="close-btn">✕</button>
+            </div>
+            <div class="settings-shell">
+                <nav class="settings-nav">
+                    <button class="settings-nav-item active" data-section="appearance">Appearance</button>
+                    <button class="settings-nav-item" data-section="script">Script</button>
+                    <button class="settings-nav-item" data-section="placeholder">Placeholder</button>
+                </nav>
+                <div class="settings-content">
+                    <section class="section-panel" data-section="appearance">
+                        <h3>Appearance</h3>
+                        <p class="hint-text">Appearance settings will appear here later.</p>
+                    </section>
+                    <section class="section-panel" data-section="script">
+                        <h3>Script</h3>
+                        <label for="scriptFolderInput">Script folder</label>
+                        <div class="folder-input-row">
+                            <input id="scriptFolderInput" type="text" placeholder="Enter or browse script folder" />
+                            <button id="browseFolderBtn" class="secondary-btn">Browse</button>
+                        </div>
+                        <p class="hint-text">The app will load all .js files from this folder and allow adding new
+                            scripts there.</p>
+                    </section>
+                    <section class="section-panel" data-section="placeholder">
+                        <h3>Placeholder</h3>
+                        <p class="hint-text">Placeholder section for future settings.</p>
+                    </section>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="saveSettingsBtn" class="primary-btn">Save settings</button>
+                <button id="cancelSettingsBtn" class="secondary-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addScriptModal" class="modal-hidden">
+        <div class="modal-backdrop" id="addScriptBackdrop"></div>
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Add script</h2>
+                <button id="closeAddScriptBtn" class="close-btn">✕</button>
+            </div>
+            <div class="modal-content">
+                <label for="newScriptNameInput">Script name</label>
+                <input id="newScriptNameInput" type="text" placeholder="Enter a script name" />
+                <p class="hint-text">A new .js file will be created in the configured script folder.</p>
+            </div>
+            <div class="modal-actions">
+                <button id="createScriptBtn" class="primary-btn">Create script</button>
+                <button id="cancelAddScriptBtn" class="secondary-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+
+</html>
