@@ -4,6 +4,7 @@ const clearBtn = document.getElementById('clearBtn');
 const scriptsContainer = document.getElementById('scriptsContainer');
 const scriptsEmpty = document.getElementById('scriptsEmpty');
 const addScriptBtn = document.getElementById('addScriptBtn');
+const addJsScriptBtn = document.getElementById('addJsScriptBtn');
 
 const statusText = document.getElementById('statusText');
 const scriptText = document.getElementById('scriptText');
@@ -25,6 +26,7 @@ const closeAddScriptBtn = document.getElementById('closeAddScriptBtn');
 const cancelAddScriptBtn = document.getElementById('cancelAddScriptBtn');
 const createScriptBtn = document.getElementById('createScriptBtn');
 const newScriptNameInput = document.getElementById('newScriptNameInput');
+const newScriptContentInput = document.getElementById('newScriptContentInput');
 
 let currentSettingsSection = 'appearance';
 
@@ -59,6 +61,7 @@ function closeSettings() {
 
 function openAddScript() {
     newScriptNameInput.value = '';
+    newScriptContentInput.value = "console.log('Hello from Fang JS script.');";
     document.body.classList.add('modal-open');
     addScriptModal.classList.remove('modal-hidden');
     addScriptModal.classList.add('modal-visible');
@@ -112,7 +115,8 @@ settingsNavItems.forEach(item => {
     });
 });
 
-addScriptBtn.addEventListener('click', openAddScript);
+addScriptBtn.addEventListener('click', addScriptFiles);
+addJsScriptBtn.addEventListener('click', openAddScript);
 closeAddScriptBtn.addEventListener('click', closeAddScript);
 cancelAddScriptBtn.addEventListener('click', closeAddScript);
 addScriptBackdrop.addEventListener('click', closeAddScript);
@@ -140,15 +144,46 @@ function renderScriptButtons(scripts) {
     scriptsEmpty.style.display = 'none';
 
     scripts.forEach(script => {
+        const item = document.createElement('div');
+        item.className = `script-item ${getScriptTypeClass(script.extension)}`;
+
         const btn = document.createElement('button');
         btn.className = 'script-btn';
-        btn.dataset.script = script.name;
+        btn.dataset.script = script.fileName;
         btn.textContent = `▶ ${script.name}`;
         btn.addEventListener('click', async () => {
-            await runScript(script.name);
+            await runScript(script.fileName);
         });
-        scriptsContainer.appendChild(btn);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'script-delete-btn';
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = '🗑';
+        deleteBtn.setAttribute('aria-label', `Delete ${script.name}`);
+        deleteBtn.title = `Delete ${script.name}`;
+        deleteBtn.textContent = '\u{1F5D1}';
+        deleteBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            await deleteScript(script.fileName);
+        });
+
+        item.appendChild(btn);
+        item.appendChild(deleteBtn);
+        scriptsContainer.appendChild(item);
     });
+}
+
+function getScriptTypeClass(extension) {
+    if (['.js', '.mjs', '.cjs'].includes(extension)) {
+        return 'script-js';
+    }
+
+    if (['.py', '.pyw'].includes(extension)) {
+        return 'script-python';
+    }
+
+    return '';
 }
 
 async function runScript(scriptName) {
@@ -183,15 +218,87 @@ async function loadScriptList() {
     renderScriptButtons(scripts);
 }
 
+async function addScriptFiles() {
+    const folderPath = getConfiguredFolder();
+    let result;
+
+    try {
+        result = await window.electronAPI.addScriptFiles(folderPath);
+    } catch (error) {
+        statusText.textContent = 'Status: Error adding script';
+        outputBox.textContent = `Error adding script: ${error.message}\n` + outputBox.textContent;
+        setTimeout(() => {
+            statusText.textContent = 'Status: Idle';
+        }, 3000);
+        return;
+    }
+
+    if (result.canceled) {
+        return;
+    }
+
+    if (!result.success) {
+        statusText.textContent = `Status: ${result.error}`;
+        setTimeout(() => {
+            statusText.textContent = 'Status: Idle';
+        }, 3000);
+        return;
+    }
+
+    await loadScriptList();
+
+    const addedCount = result.added?.length || 0;
+    const skippedCount = result.skipped?.length || 0;
+
+    if (skippedCount) {
+        statusText.textContent = `Status: Added ${addedCount}, skipped ${skippedCount} existing`;
+    } else {
+        statusText.textContent = `Status: Added ${addedCount} script file(s)`;
+    }
+
+    setTimeout(() => {
+        statusText.textContent = 'Status: Idle';
+    }, 3000);
+}
+
+async function deleteScript(scriptName) {
+    if (!window.confirm(`Delete "${scriptName}"?`)) {
+        return;
+    }
+
+    const folderPath = getConfiguredFolder();
+    statusText.textContent = 'Status: Deleting script';
+
+    try {
+        const result = await window.electronAPI.deleteScript(scriptName, folderPath);
+
+        if (result.success) {
+            statusText.textContent = 'Status: Script deleted';
+        } else {
+            statusText.textContent = `Status: ${result.error}`;
+            outputBox.textContent = `Delete error: ${result.error}\n` + outputBox.textContent;
+        }
+    } catch (error) {
+        statusText.textContent = 'Status: Delete error';
+        outputBox.textContent = `Delete error: ${error.message}\n` + outputBox.textContent;
+    } finally {
+        await loadScriptList();
+        setTimeout(() => {
+            statusText.textContent = 'Status: Idle';
+        }, 3000);
+    }
+}
+
 async function createScript() {
     const name = newScriptNameInput.value.trim();
+    const content = newScriptContentInput.value;
     if (!name) {
         statusText.textContent = 'Status: Enter a script name.';
         return;
     }
 
     const folderPath = getConfiguredFolder();
-    const result = await window.electronAPI.createScript(folderPath, name);
+    const result = await window.electronAPI.createScript(folderPath, name, content);
     if (result.success) {
         statusText.textContent = 'Status: Script created';
         closeAddScript();

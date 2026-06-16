@@ -12,7 +12,10 @@
         <div class="section">
             <div class="section-header">
                 <h2>Available Scripts</h2>
-                <button id="addScriptBtn" class="secondary-btn">+ Add script</button>
+                <div class="section-actions">
+                    <button id="addScriptBtn" class="secondary-btn">+ Add script file</button>
+                    <button id="addJsScriptBtn" class="secondary-btn">+ Add script JS</button>
+                </div>
             </div>
             <div id="scriptsContainer" class="scripts-container"></div>
             <div id="scriptsEmpty" class="empty-message">No scripts found. Add one or set the script folder in Settings.
@@ -60,8 +63,8 @@
                             <input id="scriptFolderInput" type="text" placeholder="Enter or browse script folder" />
                             <button id="browseFolderBtn" class="secondary-btn">Browse</button>
                         </div>
-                        <p class="hint-text">The app will load all .js files from this folder and allow adding new
-                            scripts there.</p>
+                        <p class="hint-text">The app will load files from this folder and run them by type: ps1, bat,
+                            cmd, js, py, exe, and more.</p>
                     </section>
                     <section class="section-panel" data-section="placeholder">
                         <h3>Placeholder</h3>
@@ -80,13 +83,15 @@
         <div class="modal-backdrop" id="addScriptBackdrop"></div>
         <div class="modal-box">
             <div class="modal-header">
-                <h2>Add script</h2>
+                <h2>Add JS script</h2>
                 <button id="closeAddScriptBtn" class="close-btn">✕</button>
             </div>
             <div class="modal-content">
                 <label for="newScriptNameInput">Script name</label>
                 <input id="newScriptNameInput" type="text" placeholder="Enter a script name" />
-                <p class="hint-text">A new .js file will be created in the configured script folder.</p>
+                <label for="newScriptContentInput">Script code</label>
+                <textarea id="newScriptContentInput" rows="10" spellcheck="false"></textarea>
+                <p class="hint-text">Creates a .js file in the configured script folder.</p>
             </div>
             <div class="modal-actions">
                 <button id="createScriptBtn" class="primary-btn">Create script</button>
